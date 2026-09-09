@@ -1,0 +1,23 @@
+{
+  "name": "auto-article-bot",
+  "version": "1.0.0",
+  "description": "Website that pulls articles from an RSS/API feed, rewrites them with the Claude API, and publishes them automatically every 15 minutes.",
+  "type": "module",
+  "main": "src/scheduler.js",
+  "engines": {
+    "node": ">=22.13.0"
+  },
+  "scripts": {
+    "start": "node src/scheduler.js",
+    "server": "node src/server.js",
+    "run-once": "node src/bot.js"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.32.1",
+    "dotenv": "^16.4.5",
+    "ejs": "^3.1.10",
+    "express": "^4.21.0",
+    "node-cron": "^3.0.3",
+    "rss-parser": "^3.13.0"
+  }
+}

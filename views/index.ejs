@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Auto Article Site</title>
+  <link rel="stylesheet" href="/style.css" />
+</head>
+<body>
+  <header>
+    <h1>Auto Article Site</h1>
+    <p class="tagline">New articles published automatically every 15 minutes.</p>
+  </header>
+
+  <main>
+    <% if (articles.length === 0) { %>
+      <p class="empty">No articles yet. Set FEED_URL in .env and run the bot.</p>
+    <% } %>
+
+    <ul class="article-list">
+      <% articles.forEach(a => { %>
+        <li>
+          <a href="/article/<%= a.slug %>"><%= a.title %></a>
+          <span class="meta"><%= a.created_at %></span>
+        </li>
+      <% }) %>
+    </ul>
+  </main>
+</body>
+</html>

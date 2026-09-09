@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <title><%= activeCategory ? `${activeCategory} | ${siteName}` : siteName %></title>
+  <%- include('partials/head') %>
+</head>
+<body>
+  <%- include('partials/masthead') %>
+
+  <main class="page">
+    <% if (activeCategory) { %>
+      <div class="section-heading">
+        <h1><%= activeCategory %></h1>
+      </div>
+    <% } %>
+
+    <% if (!lead) { %>
+      <p class="empty">
+        No articles yet<%= activeCategory ? ` in ${activeCategory}` : '' %>.
+        Set <code>FEED_URL</code> in <code>.env</code> and run the bot to publish the first one.
+      </p>
+    <% } %>
+
+    <% if (lead) { %>
+      <article class="lead-story">
+        <a class="eyebrow eyebrow-<%= lead.category.toLowerCase().replace(/\s+/g, '-') %>" href="/section/<%= lead.category.toLowerCase().replace(/\s+/g, '-') %>"><%= lead.category %></a>
+        <h1><a href="/article/<%= lead.slug %>"><%= lead.title %></a></h1>
+        <% if (lead.dek) { %><p class="dek"><%= lead.dek %></p><% } %>
+        <p class="byline">By <%= siteName %> Staff &middot; <%= new Date(lead.created_at + 'Z').toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }) %></p>
+      </article>
+    <% } %>
+
+    <% if (articles.length) { %>
+      <div class="story-grid">
+        <% articles.forEach(a => { %>
+          <article class="story-card">
+            <a class="eyebrow eyebrow-<%= a.category.toLowerCase().replace(/\s+/g, '-') %>" href="/section/<%= a.category.toLowerCase().replace(/\s+/g, '-') %>"><%= a.category %></a>
+            <h2><a href="/article/<%= a.slug %>"><%= a.title %></a></h2>
+            <% if (a.dek) { %><p class="dek"><%= a.dek %></p><% } %>
+            <p class="meta"><%= new Date(a.created_at + 'Z').toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }) %></p>
+          </article>
+        <% }) %>
+      </div>
+    <% } %>
+  </main>
+
+  <%- include('partials/footer') %>
+</body>
+</html>

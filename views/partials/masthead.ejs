@@ -1,0 +1,25 @@
+<div class="topbar">
+  <div class="topbar-inner">
+    <span><%= today %></span>
+    <span class="topbar-tag">San Diego, California</span>
+  </div>
+</div>
+
+<header class="masthead">
+  <a href="/" class="masthead-logo">
+    <img src="/images/logo-wordmark.png" alt="<%= siteName %> — Online Edition" />
+  </a>
+  <p class="masthead-tag">Local news for San Diego County</p>
+</header>
+
+<nav class="sitenav">
+  <div class="sitenav-inner">
+    <a href="/" class="<%= activeCategory === null ? 'active' : '' %>">Front Page</a>
+    <% categories.forEach(cat => { %>
+      <a
+        href="/section/<%= cat.toLowerCase().replace(/\s+/g, '-') %>"
+        class="<%= activeCategory === cat ? 'active' : '' %>"
+      ><%= cat %></a>
+    <% }) %>
+  </div>
+</nav>
