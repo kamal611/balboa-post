@@ -3,7 +3,6 @@ import Parser from "rss-parser";
 import { articleExistsForGuid, insertArticle } from "./db.js";
 import { rewriteArticle } from "./rewrite.js";
 import { SCRAPE_SOURCES, scrapeSource, hydrateScrapedItem } from "./scrapers.js";
-import { fetchSanDiegoWeatherAlerts } from "./weatherAlerts.js";
 
 const parser = new Parser();
 
@@ -110,29 +109,6 @@ async function processScrapeSource(source) {
   return { processed, skipped };
 }
 
-async function processWeatherAlerts() {
-  console.log("[bot] Checking NWS active alerts for San Diego County");
-
-  let items;
-  try {
-    items = await fetchSanDiegoWeatherAlerts();
-  } catch (err) {
-    console.error("[bot] Failed to fetch NWS alerts:", err.message);
-    return { processed: 0, skipped: 0 };
-  }
-
-  let processed = 0;
-  let skipped = 0;
-
-  for (const item of items) {
-    const result = await processItem(item);
-    if (result === "processed") processed++;
-    else if (result === "skipped") skipped++;
-  }
-
-  return { processed, skipped };
-}
-
 export async function runOnce() {
   const feedUrls = getFeedUrls();
   const hasFeedUrls = feedUrls.length > 0 && !feedUrls.some((u) => u.includes("example.com"));
@@ -160,13 +136,6 @@ export async function runOnce() {
 
   for (const source of SCRAPE_SOURCES) {
     const { processed, skipped } = await processScrapeSource(source);
-    totalProcessed += processed;
-    totalSkipped += skipped;
-    sourceCount++;
-  }
-
-  {
-    const { processed, skipped } = await processWeatherAlerts();
     totalProcessed += processed;
     totalSkipped += skipped;
     sourceCount++;
