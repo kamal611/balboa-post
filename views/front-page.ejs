@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <title><%= siteName %></title>
+  <title><%= siteName %> - <%= siteTagline %></title>
   <%- include('partials/head') %>
 </head>
 <body>
@@ -19,7 +19,7 @@
         <a class="eyebrow eyebrow-<%= lead.category.toLowerCase().replace(/\s+/g, '-') %>" href="/section/<%= lead.category.toLowerCase().replace(/\s+/g, '-') %>"><%= lead.category %></a>
         <h1><a href="/article/<%= lead.slug %>"><%= lead.title %></a></h1>
         <% if (lead.dek) { %><p class="dek"><%= lead.dek %></p><% } %>
-        <p class="byline">By <%= siteName %> Staff &middot; <%= new Date(lead.created_at + 'Z').toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }) %></p>
+        <p class="byline">By Mark Glen &middot; <%= new Date(lead.created_at + 'Z').toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }) %></p>
       </article>
     <% } %>
 

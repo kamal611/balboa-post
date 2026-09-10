@@ -2,11 +2,10 @@
   <div class="sitefooter-inner">
     <img class="sitefooter-logo" src="/images/logo-wordmark.png" alt="<%= siteName %>" />
     <p class="sitefooter-sections">
-      <% categories.forEach((cat, i) => { %><a href="/section/<%= cat.toLowerCase().replace(/\s+/g, '-') %>"><%= cat %></a><%= i < categories.length - 1 ? ' · ' : '' %><% }) %>
+      <% categories.forEach((cat, i) => { %><a href="/section/<%= cat.toLowerCase().replace(/\s+/g, '-') %>"><%= cat %></a> · <% }) %><a href="/about">About</a>
     </p>
     <p class="sitefooter-disclosure">
-      Articles on <%= siteName %> are produced with AI-assisted rewriting of public source
-      material. &copy; <%= new Date().getFullYear() %> <%= siteName %>.
+      &copy; <%= new Date().getFullYear() %> <%= siteName %>.
     </p>
   </div>
 </footer>

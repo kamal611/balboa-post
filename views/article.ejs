@@ -15,7 +15,7 @@
       <h1><%= article.title %></h1>
       <% if (article.dek) { %><p class="dek"><%= article.dek %></p><% } %>
       <p class="byline">
-        By <%= siteName %> Staff &middot;
+        By Mark Glen &middot;
         <%= new Date(article.created_at + 'Z').toLocaleString('en-US', { month: 'long', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit' }) %>
       </p>
       <div class="article-body">

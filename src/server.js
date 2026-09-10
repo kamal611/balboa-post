@@ -25,6 +25,7 @@ app.use(express.static(path.join(__dirname, "..", "public")));
 // Made available to every template.
 app.use((req, res, next) => {
   res.locals.siteName = SITE_NAME;
+  res.locals.siteTagline = "San Diego County News";
   res.locals.categories = CATEGORIES;
   res.locals.categoryCounts = categoryCounts();
   res.locals.today = new Date().toLocaleDateString("en-US", {
@@ -55,6 +56,10 @@ app.get("/section/:category", (req, res) => {
   const articles = listArticlesByCategory(category, 30);
   const [lead, ...rest] = articles;
   res.render("section", { articles: rest, lead, activeCategory: category });
+});
+
+app.get("/about", (req, res) => {
+  res.render("about", { activeCategory: null });
 });
 
 app.get("/article/:slug", (req, res) => {

@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <title>About | <%= siteName %></title>
+  <%- include('partials/head') %>
+</head>
+<body>
+  <%- include('partials/masthead') %>
+
+  <main class="page page-article">
+    <a class="back-link" href="/">&larr; Front Page</a>
+
+    <article class="full-article about-page">
+      <h1>About <%= siteName %></h1>
+
+      <h2>Who owns <%= siteName %></h2>
+      <p>
+        <%= siteName %> is owned and published by Kamal Aslanov.
+      </p>
+
+      <h2>Where we're based</h2>
+      <p>
+        <%= siteName %> is based in San Diego, California.
+      </p>
+
+      <h2>What we cover</h2>
+      <p>
+        <%= siteName %> covers local government and public-agency news across San Diego
+        County &mdash; South Bay, North County, East County, and the City of San Diego
+        itself, including its constituent communities such as Pacific Beach, Ocean Beach,
+        and La Jolla. Coverage includes city councils, county government, school districts,
+        transit agencies, water districts, public safety agencies, and weather advisories
+        issued by the National Weather Service.
+      </p>
+
+      <h2>Editorial mission</h2>
+      <p>
+        Our mission is to make local government and public-agency information more
+        accessible to San Diego County residents by surfacing announcements, decisions,
+        and advisories that often go unreported by traditional outlets, and presenting
+        them in a clear, readable format.
+      </p>
+
+      <h2>How our stories are reported</h2>
+      <p>
+        <%= siteName %> covers local government and public-agency announcements &mdash;
+        press releases, news advisories, and public notices issued directly by government
+        agencies (cities, the County of San Diego, school districts, transit and water
+        agencies) and by the National Weather Service. Every article is drawn from, and
+        can be traced back to, a specific public announcement or advisory.
+      </p>
+
+      <h2>Corrections policy</h2>
+      <p>
+        We aim to accurately reflect the public source material each article is based on.
+        If you believe an article contains an error, please contact us using the
+        information below with the article's headline or link and a description of the
+        issue. Confirmed corrections will be made promptly and noted on the affected
+        article.
+      </p>
+
+      <h2>Editorial independence</h2>
+      <p>
+        <%= siteName %> is not owned or funded by any government agency, political
+        campaign, or organization covered in its reporting, and no agency or official has
+        editorial input into what we publish or how it's written.
+      </p>
+
+      <h2>Contact information</h2>
+      <p>
+        Phone: <a href="tel:(760)%20205-2499">(760) 205-2499</a>
+      </p>
+    </article>
+  </main>
+
+  <%- include('partials/footer') %>
+</body>
+</html>
