@@ -17,6 +17,19 @@ export const db = new DatabaseSync(path.join(dataDir, "articles.db"));
 
 db.exec("PRAGMA journal_mode = WAL;");
 
+// Tracks source items the bot has already looked at -- either because it
+// published them (see "articles" below) or because it deliberately skipped
+// rewriting them during a one-time "seed" pass (see seedBaseline() in
+// bot.js). Seeding lets you mark an entire existing backlog as "already
+// seen" without spending any API calls on it, so ongoing runs only ever
+// rewrite things that show up after that point.
+db.exec(`
+  CREATE TABLE IF NOT EXISTS seen_guids (
+    guid TEXT PRIMARY KEY,
+    first_seen_at TEXT NOT NULL DEFAULT (datetime('now'))
+  );
+`);
+
 db.exec(`
   CREATE TABLE IF NOT EXISTS articles (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -60,6 +73,21 @@ export function articleExistsForGuid(guid) {
   if (!guid) return false;
   const row = db.prepare("SELECT 1 FROM articles WHERE source_guid = ?").get(guid);
   return !!row;
+}
+
+// True if this guid has either been published already, or was marked
+// "seen" during a seedBaseline() pass. This is the check the bot should
+// use to decide whether an item is worth spending an API call on.
+export function guidIsKnown(guid) {
+  if (!guid) return false;
+  if (articleExistsForGuid(guid)) return true;
+  const row = db.prepare("SELECT 1 FROM seen_guids WHERE guid = ?").get(guid);
+  return !!row;
+}
+
+export function markGuidSeen(guid) {
+  if (!guid) return;
+  db.prepare("INSERT OR IGNORE INTO seen_guids (guid) VALUES (?)").run(guid);
 }
 
 export function insertArticle({ slug, title, dek, category, bodyHtml, sourceUrl, sourceGuid }) {

@@ -1,6 +1,6 @@
 import "dotenv/config";
 import Parser from "rss-parser";
-import { articleExistsForGuid, insertArticle } from "./db.js";
+import { guidIsKnown, markGuidSeen, insertArticle } from "./db.js";
 import { rewriteArticle } from "./rewrite.js";
 import { SCRAPE_SOURCES, scrapeSource, hydrateScrapedItem } from "./scrapers.js";
 
@@ -25,7 +25,7 @@ function getFeedUrls() {
 async function processItem(item) {
   const guid = item.guid || item.id || item.link;
 
-  if (articleExistsForGuid(guid)) {
+  if (guidIsKnown(guid)) {
     return "skipped";
   }
 
@@ -88,7 +88,7 @@ async function processScrapeSource(source) {
   let skipped = 0;
 
   for (const item of items) {
-    if (articleExistsForGuid(item.guid)) {
+    if (guidIsKnown(item.guid)) {
       skipped++;
       continue;
     }
@@ -147,9 +147,70 @@ export async function runOnce() {
   return { processed: totalProcessed, skipped: totalSkipped };
 }
 
+// One-time "start fresh from today" pass: walks every configured source
+// exactly like runOnce() does, but instead of sending unseen items to
+// Claude to be rewritten, it just marks their guid as seen and moves on.
+// No rewrite API calls, and for scraped sources, no per-article fetch
+// either -- only the (free) listing-page fetch happens. Run this once
+// before turning on the scheduler to make sure the very first real run
+// only ever rewrites things published after this point, not an entire
+// historical backlog sitting on each source's listing page.
+export async function seedBaseline() {
+  const feedUrls = getFeedUrls();
+  let totalSeeded = 0;
+  let totalAlreadyKnown = 0;
+
+  for (const feedUrl of feedUrls) {
+    console.log(`[seed] Fetching feed: ${feedUrl}`);
+    let feed;
+    try {
+      feed = await parser.parseURL(feedUrl);
+    } catch (err) {
+      console.error(`[seed] Failed to fetch feed ${feedUrl}:`, err.message);
+      continue;
+    }
+    for (const item of feed.items) {
+      const guid = item.guid || item.id || item.link;
+      if (guidIsKnown(guid)) {
+        totalAlreadyKnown++;
+        continue;
+      }
+      markGuidSeen(guid);
+      totalSeeded++;
+    }
+  }
+
+  for (const source of SCRAPE_SOURCES) {
+    console.log(`[seed] Scraping: ${source.name} (${source.listUrl})`);
+    let items;
+    try {
+      items = await scrapeSource(source);
+    } catch (err) {
+      console.error(`[seed] Failed to scrape ${source.name}:`, err.message);
+      continue;
+    }
+    for (const item of items) {
+      if (guidIsKnown(item.guid)) {
+        totalAlreadyKnown++;
+        continue;
+      }
+      markGuidSeen(item.guid);
+      totalSeeded++;
+    }
+  }
+
+  console.log(
+    `[seed] Done. Marked ${totalSeeded} existing item${totalSeeded === 1 ? "" : "s"} as seen (no API calls made). ${totalAlreadyKnown} were already known. Future runs will only rewrite items newer than this.`
+  );
+  return { seeded: totalSeeded, alreadyKnown: totalAlreadyKnown };
+}
+
+// Allow `npm run run-once` / `npm run seed-baseline` to trigger a single
+// pass directly.
 const isMain = process.argv[1] && process.argv[1].endsWith("bot.js");
 if (isMain) {
-  runOnce()
+  const mode = process.argv.includes("--seed-baseline") ? seedBaseline : runOnce;
+  mode()
     .then(() => process.exit(0))
     .catch((err) => {
       console.error("[bot] Fatal error:", err);

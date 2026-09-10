@@ -10,7 +10,8 @@
   "scripts": {
     "start": "node src/scheduler.js",
     "server": "node src/server.js",
-    "run-once": "node src/bot.js"
+    "run-once": "node src/bot.js",
+    "seed-baseline": "node src/bot.js --seed-baseline"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.32.1",
