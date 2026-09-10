@@ -3,6 +3,7 @@ import Parser from "rss-parser";
 import { articleExistsForGuid, insertArticle } from "./db.js";
 import { rewriteArticle } from "./rewrite.js";
 import { SCRAPE_SOURCES, scrapeSource, hydrateScrapedItem } from "./scrapers.js";
+import { fetchSanDiegoWeatherAlerts } from "./weatherAlerts.js";
 
 const parser = new Parser();
 
@@ -14,8 +15,6 @@ function slugify(title) {
   return `${base}-${Date.now().toString(36)}`;
 }
 
-// FEED_URL supports one or more feeds, comma-separated:
-//   FEED_URL=https://feed-one.com/rss,https://feed-two.com/rss
 function getFeedUrls() {
   const raw = process.env.FEED_URL || "";
   return raw
@@ -24,8 +23,6 @@ function getFeedUrls() {
     .filter(Boolean);
 }
 
-// Shared by both RSS items and scraped items -- rewrites one item and
-// saves it, skipping if already published (by guid) or logging on failure.
 async function processItem(item) {
   const guid = item.guid || item.id || item.link;
 
@@ -92,8 +89,6 @@ async function processScrapeSource(source) {
   let skipped = 0;
 
   for (const item of items) {
-    // Skip the (slower) per-article fetch entirely if we've already
-    // published this URL -- no need to hydrate it first.
     if (articleExistsForGuid(item.guid)) {
       skipped++;
       continue;
@@ -108,6 +103,29 @@ async function processScrapeSource(source) {
     }
 
     const result = await processItem(hydrated);
+    if (result === "processed") processed++;
+    else if (result === "skipped") skipped++;
+  }
+
+  return { processed, skipped };
+}
+
+async function processWeatherAlerts() {
+  console.log("[bot] Checking NWS active alerts for San Diego County");
+
+  let items;
+  try {
+    items = await fetchSanDiegoWeatherAlerts();
+  } catch (err) {
+    console.error("[bot] Failed to fetch NWS alerts:", err.message);
+    return { processed: 0, skipped: 0 };
+  }
+
+  let processed = 0;
+  let skipped = 0;
+
+  for (const item of items) {
+    const result = await processItem(item);
     if (result === "processed") processed++;
     else if (result === "skipped") skipped++;
   }
@@ -147,13 +165,19 @@ export async function runOnce() {
     sourceCount++;
   }
 
+  {
+    const { processed, skipped } = await processWeatherAlerts();
+    totalProcessed += processed;
+    totalSkipped += skipped;
+    sourceCount++;
+  }
+
   console.log(
     `[bot] Done. New articles: ${totalProcessed}, already had: ${totalSkipped} (across ${sourceCount} source${sourceCount === 1 ? "" : "s"})`
   );
   return { processed: totalProcessed, skipped: totalSkipped };
 }
 
-// Allow `npm run run-once` to trigger a single pass directly.
 const isMain = process.argv[1] && process.argv[1].endsWith("bot.js");
 if (isMain) {
   runOnce()
