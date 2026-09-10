@@ -33,6 +33,7 @@ app.use((req, res, next) => {
     year: "numeric",
     month: "long",
     day: "numeric",
+    timeZone: "America/Los_Angeles",
   });
   next();
 });

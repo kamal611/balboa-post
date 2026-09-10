@@ -16,7 +16,7 @@
       <% if (article.dek) { %><p class="dek"><%= article.dek %></p><% } %>
       <p class="byline">
         By Mark Glen &middot;
-        <%= new Date(article.created_at + 'Z').toLocaleString('en-US', { month: 'long', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit' }) %>
+        <%= new Date(article.created_at + 'Z').toLocaleString('en-US', { month: 'long', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit', timeZone: 'America/Los_Angeles' }) %>
       </p>
       <div class="article-body">
         <%- article.body_html %>
