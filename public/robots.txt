@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://balboapost.com/sitemap.xml

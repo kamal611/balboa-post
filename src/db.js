@@ -149,3 +149,11 @@ export function categoryCounts() {
 export function getArticleBySlug(slug) {
   return db.prepare("SELECT * FROM articles WHERE slug = ?").get(slug);
 }
+
+// Lightweight listing (just slug + timestamp) of every article, used to
+// build the XML sitemap. No LIMIT -- search engines want the full list.
+export function listAllArticleSlugs() {
+  return db
+    .prepare("SELECT slug, created_at FROM articles ORDER BY created_at DESC")
+    .all();
+}
